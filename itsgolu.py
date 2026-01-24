@@ -26,6 +26,8 @@ from urllib.parse import urljoin
 from vars import *  # Add this import
 from db import Database
 
+ACTIVE_PROCESSES = {}
+
 
 
 def get_duration(filename):
@@ -357,15 +359,19 @@ async def download_video(url, cmd, name):
     max_retries = 2
 
     while retry_count < max_retries:
-
-
         download_cmd = f'{cmd} -R 25 --fragment-retries 25 --external-downloader aria2c --downloader-args "aria2c: -x 16 -j 32"'
         print(download_cmd)
         logging.info(download_cmd)
 
-        k = subprocess.run(download_cmd, shell=True)
+        process = await asyncio.create_subprocess_shell(download_cmd)
+        from main import STOP_LIST # Import here to avoid circular
+        
+        # Track process for cancellation
+        ACTIVE_PROCESSES[name] = process # Use name or chat_id if available
 
-        if k.returncode == 0:
+        return_code = await process.wait()
+
+        if return_code == 0:
             break  # success
 
         retry_count += 1
