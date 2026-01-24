@@ -305,13 +305,15 @@ async def txt_handler(bot: Client, m: Message):
         links = []
         for i in content:
             if "://" in i:
-                # Correctly split title and URL to prevent "https" leakage
+                # Correctly split title and URL
                 parts = i.split("://", 1)
                 name = parts[0].strip()
                 # If title contains a colon (title:https://...), remove it
                 if ":" in name:
                     name = name.rsplit(":", 1)[0].strip()
-                url = "https://" + parts[1].strip()
+                
+                # Store URL WITHOUT https:// to match the loop's prefixing logic
+                url = parts[1].strip()
                 links.append([name, url])
                 if ".pdf" in url: pdf_count += 1
                 elif url.endswith((".png", ".jpeg", ".jpg")): img_count += 1
