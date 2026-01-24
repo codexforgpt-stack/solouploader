@@ -1243,4 +1243,21 @@ def run_web_server():
 # Start web server in a background thread
 threading.Thread(target=run_web_server, daemon=True).start()
 
-bot.run()
+async def start_bot():
+    print("🤖 Starting Solo Beast Bot...")
+    try:
+        await bot.start()
+    except FloodWait as e:
+        print(f"⏳ FloodWait: Sleeping for {e.value} seconds...")
+        await asyncio.sleep(e.value)
+        await bot.start()
+    except Exception as e:
+        print(f"❌ Failed to start bot: {e}")
+        return
+
+    print("✅ Bot Started Successfully!")
+    await idle()
+    await bot.stop()
+
+if __name__ == "__main__":
+    loop.run_until_complete(start_bot())
