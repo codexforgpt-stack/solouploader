@@ -308,19 +308,17 @@ async def getcookies_handler(client: Client, m: Message):
 async def stop_handler(_, m):
     STOP_LIST.add(m.chat.id)
     
-    # Kill any active subprocesses for this task
-    # We use a copy of the keys to avoid dictionary size changes during iteration
-    for name in list(ACTIVE_PROCESSES.keys()):
-        proc = ACTIVE_PROCESSES.get(name)
-        if proc:
-            try:
-                proc.terminate()
-                print(f"🛑 Terminated process: {name}")
-                del ACTIVE_PROCESSES[name]
-            except Exception as e:
-                print(f"⚠️ Error terminating process {name}: {e}")
+    # Kill active subprocess for this chat
+    proc = ACTIVE_PROCESSES.get(m.chat.id)
+    if proc:
+        try:
+            proc.terminate()
+            print(f"🛑 Terminated process for chat: {m.chat.id}")
+            del ACTIVE_PROCESSES[m.chat.id]
+        except Exception as e:
+            print(f"⚠️ Error terminating process: {e}")
 
-    await m.reply_text("🚦**STOPPED**\nAll active downloads for this task have been terminated.", quote=True)
+    await m.reply_text("🚦**STOPPED**\nAll active downloads for your task have been terminated.", quote=True)
         
 
 @bot.on_message(filters.command("start") & (filters.private | filters.channel))
@@ -1078,7 +1076,7 @@ async def txt_handler(bot: Client, m: Message):
                 else:
                     Show = f"<i><b>📥 Fast Video Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
                     prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
-                    res_file = await helper.download_video(url, cmd, name)
+                    res_file = await helper.download_video(url, cmd, name, m.chat.id)
                     filename = res_file
                     await prog.delete(True)
                     await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
@@ -1234,11 +1232,8 @@ async def back_to_start_callback(client, callback_query: CallbackQuery):
             "• /users - List all users\n"
         )
     
-    await callback_query.message.edit_media(
-        media=InputMediaPhoto(
-            media=photologo,
-            caption=f"**Mʏ ᴄᴏᴍᴍᴀɴᴅꜱ ғᴏʀ ʏᴏᴜ [{callback_query.from_user.first_name} ](tg://settings)**\n\n{commands_list}"
-        ),
+    await callback_query.message.edit_caption(
+        caption=f"**Mʏ ᴄᴏᴍᴍᴀɴᴅꜱ ғᴏʀ ʏᴏᴜ [{callback_query.from_user.first_name} ](tg://settings)**\n\n{commands_list}",
         reply_markup=InlineKeyboardMarkup([
             [
                 InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®", url="https://t.me/solobst_bot")
@@ -1250,7 +1245,7 @@ async def back_to_start_callback(client, callback_query: CallbackQuery):
         ])
     )
 
-print("Bot Started...")
+
 
 def run_web_server():
     import os
