@@ -107,6 +107,7 @@ watermark = "/d"  # Default value
 count = 0
 userbot = None
 timeout_duration = 300  # 5 minutes
+STOP_LIST = set()
 
 
 # Initialize bot with random session
@@ -319,11 +320,10 @@ async def getcookies_handler(client: Client, m: Message):
     except Exception as e:
         await m.reply_text(f"⚠️ An error occurred: {str(e)}")
 
-@bot.on_message(filters.command(["stop"]) )
-async def restart_handler(_, m):
-    
-    await m.reply_text("🚦**STOPPED**", True)
-    os.execl(sys.executable, sys.executable, *sys.argv)
+@bot.on_message(filters.command(["stop"]))
+async def stop_handler(_, m):
+    STOP_LIST.add(m.chat.id)
+    await m.reply_text("🚦**STOPPED**\nProgress will stop shortly.", quote=True)
         
 
 @bot.on_message(filters.command("start") & (filters.private | filters.channel))
@@ -740,6 +740,11 @@ async def txt_handler(bot: Client, m: Message):
     arg = int(raw_text)
     try:
         for i in range(arg-1, len(links)):
+            if m.chat.id in STOP_LIST:
+                STOP_LIST.remove(m.chat.id)
+                await m.reply_text("🚫 **Current task cancelled by user.**")
+                break
+            
             Vxy = links[i][1].replace("file/d/","uc?export=download&id=").replace("www.youtube-nocookie.com/embed", "youtu.be").replace("?modestbranding=1", "").replace("/view?usp=sharing","")
             url = "https://" + Vxy
             link0 = "https://" + Vxy
@@ -1183,7 +1188,7 @@ async def features_callback(client, callback_query: CallbackQuery):
         "• ⚙️ Customizable quality settings\n"
         "• 🎨 Custom watermark support\n"
     )
-    await callback_query.message.edit_text(
+    await callback_query.message.edit_caption(
         features_text,
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_start")]
@@ -1206,7 +1211,7 @@ async def details_callback(client, callback_query: CallbackQuery):
         "• 🚫 We don't store your personal information\n"
         "• 🔐 End-to-end encryption for all communications\n"
     )
-    await callback_query.message.edit_text(
+    await callback_query.message.edit_caption(
         details_text,
         reply_markup=InlineKeyboardMarkup([
             [InlineKeyboardButton("🔙 Back", callback_data="back_to_start")]
