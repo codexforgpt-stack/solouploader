@@ -820,12 +820,19 @@ async def txt_handler(bot: Client, m: Message):
                 keys_string = ""
                 mpd = None
                 try:
-                    resp = requests.get(api_url_call, timeout=30)
+                    # Added headers to match browser and logging for honesty
+                    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"}
+                    print(f"📡 Calling CP-API: {api_url_call}")
+                    resp = requests.get(api_url_call, timeout=40, headers=headers)
+                    print(f"📶 API Status Code: {resp.status_code}")
+                    
                     # parse JSON safely
                     try:
                         data = resp.json()
+                        print(f"📥 API Response: {data}")
                     except Exception:
                         data = None
+                        print(f"📄 API Data: {resp.text[:200]}")
             
                     # DRM response (MPD + KEYS)
                     if isinstance(data, dict) and "KEYS" in data and "MPD" in data:
@@ -833,14 +840,17 @@ async def txt_handler(bot: Client, m: Message):
                         keys = data.get("KEYS", [])
                         url = mpd
                         keys_string = " ".join([f"--key {k}" for k in keys])
+                        print(f"✅ Keys Found: {keys_string}")
             
                     # Non-DRM response (direct url)
                     elif isinstance(data, dict) and "url" in data:
                         url = data.get("url")
                         keys_string = ""
+                        print(f"🔗 Direct URL Found: {url}")
             
                     else:
                         # Unexpected response format — fallback to helper
+                        print("⚠️ API unexpected format, trying helper fallback...")
                         try:
                             res = helper.get_mps_and_keys2(url_norm)
                             if res:
@@ -849,9 +859,11 @@ async def txt_handler(bot: Client, m: Message):
                                 keys_string = " ".join([f"--key {k}" for k in keys])
                             else:
                                 keys_string = ""
-                        except Exception:
+                        except Exception as e:
+                            print(f"❌ Fallback Error: {e}")
                             keys_string = ""
-                except Exception:
+                except Exception as e:
+                    print(f"💥 API Call Exception: {e}")
                     # API failed — attempt helper fallback
                     try:
                         res = helper.get_mps_and_keys2(url_norm)
@@ -945,6 +957,7 @@ async def txt_handler(bot: Client, m: Message):
                         await m.reply_text(str(e))
                         time.sleep(e.x)
                         continue    
+  
   
                 elif ".pdf" in url:
                     if "cwmediabkt99" in url:
@@ -1058,42 +1071,37 @@ async def txt_handler(bot: Client, m: Message):
                         continue
                     
 
-                elif 'drmcdni' in url or 'drm/wv' in url or 'drm/common' in url:
-                    Show = f"<i><b>📥 Fast Video Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
+                elif (keys_string and mpd) or ('drmcdni' in url or 'drm/wv' in url or 'drm/common' in url):
+                    Show = f"<i><b>📥 Fast DRM Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
                     prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
-                    res_file = await helper.decrypt_and_merge_video(mpd, keys_string, path, name, raw_text2)
-                    filename = res_file
-                    await prog.delete(True)
-                    await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
-                    count += 1
-                    await asyncio.sleep(1)
-                    continue
+                    print(f"🎬 Running Decryption for: {name}")
+                    logging.info(f"DRM Download: {name} | Keys: {keys_string}")
+                    try:
+                        res_file = await helper.decrypt_and_merge_video(mpd, keys_string, f"./downloads/{m.chat.id}", name, raw_text2)
+                        filename = res_file
+                        await prog.delete(True)
+                        await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
+                        count += 1
+                        await asyncio.sleep(1)
+                        continue
+                    except Exception as drm_err:
+                        print(f"❌ DRM Decryption Failed: {drm_err}")
+                        await bot.send_message(channel_id, f"⚠️**DRM Decryption Failed**⚠️\n`{name1}`\nFalling back to standard download...", disable_web_page_preview=True)
+                        # Fallback
+                        Show = f"<i><b>📥 Fast Video Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
+                        prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
+                        res_file = await helper.download_video(url, cmd, name, m.chat.id)
+                        filename = res_file
+                        await prog.delete(True)
+                        await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
+                        count += 1
+                        time.sleep(1)
+                        continue
 
      
 
             
 
-                # Handle DRM content specifically if Keys are present
-                if keys_string and mpd:
-                    Show = f"<i><b>📥 Fast DRM Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
-                    prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
-                    # For DRM, we use decrypt_and_merge_video
-                    res_file = await helper.decrypt_and_merge_video(mpd, keys_string, f"./downloads/{m.chat.id}", name, raw_text2)
-                    filename = res_file
-                    await prog.delete(True)
-                    await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
-                    count += 1
-                    await asyncio.sleep(1)
-                    continue
-                else:
-                    Show = f"<i><b>📥 Fast Video Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
-                    prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
-                    res_file = await helper.download_video(url, cmd, name, m.chat.id)
-                    filename = res_file
-                    await prog.delete(True)
-                    await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
-                    count += 1
-                    time.sleep(1)
                 
             except Exception as e:
                 await bot.send_message(channel_id, f'⚠️**Downloading Failed**⚠️\n**Name** =>> `{str(count).zfill(3)} {name1}`\n**Url** =>> {link0}\n\n<blockquote><i><b>Failed Reason: {str(e)}</b></i></blockquote>', disable_web_page_preview=True)
