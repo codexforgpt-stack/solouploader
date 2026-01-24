@@ -321,19 +321,18 @@ async def start(bot: Client, m: Message):
             is_admin = db.is_admin(m.from_user.id)
             
             if not is_authorized:
-                await m.reply_photo(
-                    photo=photologo,
-                    caption="**Mʏ Nᴀᴍᴇ [ꜱᴏʟᴏ ʙᴇᴀsᴛ 🦋](https://t.me/solobst_bot)\n\nYᴏᴜ ᴅᴏɴ'ᴛ ʜᴀᴠᴇ ᴀᴄᴄᴇꜱꜱ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ\nCᴏɴᴛᴀᴄᴛ [𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®](https://t.me/solobst_bot) ғᴏʀ ᴀᴄᴄᴇꜱꜱ**",
-                    reply_markup=InlineKeyboardMarkup([
-    [
-        InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®", url="https://t.me/solobst_bot")
-    ],
-    [
-        InlineKeyboardButton("ғᴇᴀᴛᴜʀᴇꜱ 🪔", callback_data="features"),
-        InlineKeyboardButton("ᴅᴇᴛᴀɪʟꜱ 🦋", callback_data="details")
-    ]
-])
-                )
+                caption = "**Mʏ Nᴀᴍᴇ [ꜱᴏʟᴏ ʙᴇᴀsᴛ 🦋](https://t.me/solobst_bot)\n\nYᴏᴜ ᴅᴏɴ'T ʜᴀᴠᴇ ᴀᴄᴄᴇꜱꜱ ᴛᴏ ᴜꜱᴇ ᴛʜɪꜱ ʙᴏᴛ\nCᴏɴᴛᴀᴄᴛ [𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®](https://t.me/solobst_bot) ғᴏʀ ᴀᴄᴄᴇss**"
+                markup = InlineKeyboardMarkup([
+                    [InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®", url="https://t.me/solobst_bot")],
+                    [
+                        InlineKeyboardButton("ғᴇᴀᴛᴜʀᴇꜱ 🪔", callback_data="features"),
+                        InlineKeyboardButton("ᴅᴇᴛᴀɪʟꜱ 🦋", callback_data="details")
+                    ]
+                ])
+                try:
+                    await m.reply_photo(photo=random.choice(image_urls), caption=caption, reply_markup=markup)
+                except Exception:
+                    await m.reply_text(text=caption, reply_markup=markup, disable_web_page_preview=True)
                 return
                 
             commands_list = (
@@ -347,18 +346,18 @@ async def start(bot: Client, m: Message):
                     "• /users - List all users\n"
                 )
             
-            await m.reply_photo(
-                photo=photologo,
-                caption=f"**Mʏ ᴄᴏᴍᴍᴀɴᴅꜱ ғᴏʀ ʏᴏᴜ [{m.from_user.first_name} ](tg://settings)**\n\n{commands_list}",
-                reply_markup=InlineKeyboardMarkup([
-    [
-        InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®", url="https://t.me/solobst_bot")
-    ],
-    [
-        InlineKeyboardButton("ғᴇᴀᴛᴜʀᴇꜱ 🪔", callback_data="features"),
-        InlineKeyboardButton("ᴅᴇᴛᴀɪʟꜱ 🦋", callback_data="details")
-    ]])
-)
+            caption = f"**Mʏ ᴄᴏᴍᴍᴀɴᴅꜱ ғᴏʀ ʏᴏᴜ [{m.from_user.first_name} ](tg://settings)**\n\n{commands_list}"
+            markup = InlineKeyboardMarkup([
+                [InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®", url="https://t.me/solobst_bot")],
+                [
+                    InlineKeyboardButton("ғᴇᴀᴛᴜʀᴇꜱ 🪔", callback_data="features"),
+                    InlineKeyboardButton("ᴅᴇᴛᴀɪʟꜱ 🦋", callback_data="details")
+                ]
+            ])
+            try:
+                await m.reply_photo(photo=random.choice(image_urls), caption=caption, reply_markup=markup)
+            except Exception:
+                await m.reply_text(text=caption, reply_markup=markup, disable_web_page_preview=True)
             
     except Exception as e:
         print(f"Error in start command: {str(e)}")
