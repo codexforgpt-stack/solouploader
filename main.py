@@ -323,7 +323,8 @@ async def getcookies_handler(client: Client, m: Message):
 @bot.on_message(filters.command(["stop"]))
 async def stop_handler(_, m):
     STOP_LIST.add(m.chat.id)
-    await m.reply_text("🚦**STOPPED**\nProgress will stop shortly.", quote=True)
+    # Stop any active batch processes if possible
+    await m.reply_text("🚦**STOPPED**\nBatch will stop after current file or on next check.", quote=True)
         
 
 @bot.on_message(filters.command("start") & (filters.private | filters.channel))
