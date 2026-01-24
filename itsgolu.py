@@ -26,8 +26,6 @@ from urllib.parse import urljoin
 from vars import *  # Add this import
 from db import Database
 
-ACTIVE_PROCESSES = {}
-
 
 
 def get_duration(filename):
@@ -364,10 +362,9 @@ async def download_video(url, cmd, name):
         logging.info(download_cmd)
 
         process = await asyncio.create_subprocess_shell(download_cmd)
-        from main import STOP_LIST # Import here to avoid circular
         
         # Track process for cancellation
-        ACTIVE_PROCESSES[name] = process # Use name or chat_id if available
+        ACTIVE_PROCESSES[name] = process
 
         return_code = await process.wait()
 
