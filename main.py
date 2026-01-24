@@ -3,7 +3,7 @@ import threading
 
 # Explicitly create and set event loop for Python 3.10+ (and experimental 3.14)
 try:
-    asyncio.get_event_loop()
+    loop = asyncio.get_event_loop()
 except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -83,6 +83,21 @@ from vars import *
 import pyromod.listen
 
 from db import db
+
+def download_mp4decrypt():
+    if not shutil.which("mp4decrypt"):
+        print("mp4decrypt not found, downloading...")
+        import platform
+        if platform.system() == "Linux":
+            os.system("wget -q https://www.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip")
+            os.system("unzip -q Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip")
+            os.system("cp Bento4-SDK-1-6-0-641.x86_64-unknown-linux/bin/mp4decrypt .")
+            os.system("chmod +x mp4decrypt")
+            os.system("rm -rf Bento4-SDK-1-6-0-641.x86_64-unknown-linux*")
+            os.environ["PATH"] += os.pathsep + os.getcwd()
+            print("mp4decrypt downloaded and added to PATH.")
+
+download_mp4decrypt()
 
 auto_flags = {}
 auto_clicked = False
