@@ -1,3 +1,13 @@
+import asyncio
+import threading
+
+# Explicitly create and set event loop for Python 3.10+ (and experimental 3.14)
+try:
+    asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
 # 🔧 Standard Library
 import os
 import re
@@ -73,13 +83,6 @@ from vars import *
 import pyromod.listen
 
 from db import db
-
-# Explicitly create and set event loop for Python 3.10+ on Heroku
-try:
-    loop = asyncio.get_event_loop()
-except RuntimeError:
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
 
 auto_flags = {}
 auto_clicked = False
