@@ -816,7 +816,7 @@ async def txt_handler(bot: Client, m: Message):
                 # Normalize cpvod -> media-cdn path used by API
                 url_norm = url.replace("https://cpvod.testbook.com/", "https://media-cdn.classplusapp.com/drm/")
                 # Updated to use new CP-API deployed on Vercel
-                api_url_call = f"https://cp-api-main-repo-o9gb.vercel.app/ITsGOLU_OFFICIAL?url={url_norm}"
+                api_url_call = f"https://cp-api-main-repo-1z0y8vtn5-solo-beasts-projects.vercel.app/ITsGOLU_OFFICIAL?url={url_norm}"
                 keys_string = ""
                 mpd = None
                 try:
