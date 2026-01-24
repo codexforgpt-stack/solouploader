@@ -84,21 +84,6 @@ import pyromod.listen
 
 from db import db
 
-def download_mp4decrypt():
-    if not shutil.which("mp4decrypt"):
-        print("mp4decrypt not found, downloading...")
-        import platform
-        if platform.system() == "Linux":
-            os.system("wget -q https://www.bok.net/Bento4/binaries/Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip")
-            os.system("unzip -q Bento4-SDK-1-6-0-641.x86_64-unknown-linux.zip")
-            os.system("cp Bento4-SDK-1-6-0-641.x86_64-unknown-linux/bin/mp4decrypt .")
-            os.system("chmod +x mp4decrypt")
-            os.system("rm -rf Bento4-SDK-1-6-0-641.x86_64-unknown-linux*")
-            os.environ["PATH"] += os.pathsep + os.getcwd()
-            print("mp4decrypt downloaded and added to PATH.")
-
-download_mp4decrypt()
-
 auto_flags = {}
 auto_clicked = False
 
@@ -107,7 +92,6 @@ watermark = "/d"  # Default value
 count = 0
 userbot = None
 timeout_duration = 300  # 5 minutes
-STOP_LIST = set()
 
 
 # Initialize bot with random session
@@ -323,8 +307,20 @@ async def getcookies_handler(client: Client, m: Message):
 @bot.on_message(filters.command(["stop"]))
 async def stop_handler(_, m):
     STOP_LIST.add(m.chat.id)
-    # Stop any active batch processes if possible
-    await m.reply_text("🚦**STOPPED**\nBatch will stop after current file or on next check.", quote=True)
+    
+    # Kill any active subprocesses for this task
+    # We use a copy of the keys to avoid dictionary size changes during iteration
+    for name in list(ACTIVE_PROCESSES.keys()):
+        proc = ACTIVE_PROCESSES.get(name)
+        if proc:
+            try:
+                proc.terminate()
+                print(f"🛑 Terminated process: {name}")
+                del ACTIVE_PROCESSES[name]
+            except Exception as e:
+                print(f"⚠️ Error terminating process {name}: {e}")
+
+    await m.reply_text("🚦**STOPPED**\nAll active downloads for this task have been terminated.", quote=True)
         
 
 @bot.on_message(filters.command("start") & (filters.private | filters.channel))
@@ -1261,9 +1257,6 @@ def run_web_server():
     port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=port)
 
-# Start web server in a background thread
-threading.Thread(target=run_web_server, daemon=True).start()
-
 async def start_bot():
     print("🤖 Starting Solo Beast Bot...")
     try:
@@ -1281,4 +1274,6 @@ async def start_bot():
     await bot.stop()
 
 if __name__ == "__main__":
+    # Start web server in a background thread
+    threading.Thread(target=run_web_server, daemon=True).start()
     loop.run_until_complete(start_bot())
