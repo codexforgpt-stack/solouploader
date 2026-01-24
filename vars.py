@@ -4,7 +4,7 @@ from os import environ
 # API Configuration (From Extractor Bot)
 API_ID = int(os.environ.get("API_ID", "34439627"))  # Added from extractor bot
 API_HASH = os.environ.get("API_HASH", "e5c7efb57949e742889aa96bf64c4552")  # Added from extractor bot
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8591093489:AAH6yr3iN0V8Srj7VAd5mm0ih7sYXoI9V-s")  # Uploader bot token
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8241066268:AAFxKhfnk35j4cij-zU-hxJYo6VJB0jVlmU")  # Uploader bot token
 
 CREDIT = os.environ.get("CREDIT", "𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭")
 # MongoDB Configuration (From Extractor Bot)
@@ -62,6 +62,7 @@ Please contact the admin to get access.</blockquote>""",
 
 <blockquote>Use format: {format}</blockquote>"""
 }
+
 
 
 
