@@ -352,7 +352,7 @@ async def fast_download(url, name):
     
     return None
 
-async def download_video(url, cmd, name):
+async def download_video(url, cmd, name, chat_id):
     retry_count = 0
     max_retries = 2
 
@@ -363,10 +363,14 @@ async def download_video(url, cmd, name):
 
         process = await asyncio.create_subprocess_shell(download_cmd)
         
-        # Track process for cancellation
-        ACTIVE_PROCESSES[name] = process
+        # Track process for cancellation By chat_id
+        ACTIVE_PROCESSES[chat_id] = process
 
         return_code = await process.wait()
+        
+        # Cleanup after done
+        if ACTIVE_PROCESSES.get(chat_id) == process:
+            del ACTIVE_PROCESSES[chat_id]
 
         if return_code == 0:
             break  # success
