@@ -744,7 +744,7 @@ async def txt_handler(bot: Client, m: Message):
             url = "https://" + Vxy
             link0 = "https://" + Vxy
 
-            name1 = links[i][0].replace("(", "[").replace(")", "]").replace("_", "").replace("\t", "").replace(":", "").replace("/", "").replace("+", "").replace("#", "").replace("|", "").replace("@", "").replace("*", "").replace(".", "").replace("https", "").replace("http", "").strip()
+            name1 = links[i][0].replace("(", "[").replace(")", "]").replace("_", "").replace("\t", "").replace(":", "").replace("/", "").replace("+", "").replace("#", "").replace("|", "").replace("@", "").replace(".", "").replace("https", "").replace("http", "").strip()
             if "," in raw_text3:
                  name = f'{PRENAME} {name1[:60]}'
             else:
@@ -815,8 +815,8 @@ async def txt_handler(bot: Client, m: Message):
             elif any(x in url for x in ["https://cpvod.testbook.com/", "classplusapp.com/drm/", "media-cdn.classplusapp.com", "media-cdn-alisg.classplusapp.com", "media-cdn-a.classplusapp.com", "tencdn.classplusapp", "videos.classplusapp", "webvideos.classplusapp.com"]):
                 # Normalize cpvod -> media-cdn path used by API
                 url_norm = url.replace("https://cpvod.testbook.com/", "https://media-cdn.classplusapp.com/drm/")
-                # Updated to use new CP-API deployed on Vercel
-                api_url_call = f"https://cp-api-main-repo-1z0y8vtn5-solo-beasts-projects.vercel.app/ITsGOLU_OFFICIAL?url={url_norm}"
+                # Updated to use confirmed working CP-API
+                api_url_call = f"https://cp-api-main-repo-o9gb.vercel.app/ITsGOLU_OFFICIAL?url={url_norm}"
                 keys_string = ""
                 mpd = None
                 try:
@@ -1073,6 +1073,18 @@ async def txt_handler(bot: Client, m: Message):
 
             
 
+                # Handle DRM content specifically if Keys are present
+                if keys_string and mpd:
+                    Show = f"<i><b>📥 Fast DRM Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
+                    prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
+                    # For DRM, we use decrypt_and_merge_video
+                    res_file = await helper.decrypt_and_merge_video(mpd, keys_string, f"./downloads/{m.chat.id}", name, raw_text2)
+                    filename = res_file
+                    await prog.delete(True)
+                    await helper.send_vid(bot, m, cc, filename, thumb, name, prog, channel_id, watermark=watermark)
+                    count += 1
+                    await asyncio.sleep(1)
+                    continue
                 else:
                     Show = f"<i><b>📥 Fast Video Downloading</b></i>\n<blockquote><b>{str(count).zfill(3)}) {name1}</b></blockquote>"
                     prog = await bot.send_message(channel_id, Show, disable_web_page_preview=True)
