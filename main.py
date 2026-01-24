@@ -74,6 +74,13 @@ import pyromod.listen
 
 from db import db
 
+# Explicitly create and set event loop for Python 3.10+ on Heroku
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
 auto_flags = {}
 auto_clicked = False
 
@@ -187,10 +194,10 @@ cookies_file_path = os.getenv("cookies_file_path", "youtube_cookies.txt")
 api_url = "http://master-api-v3.vercel.app/"
 api_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiNzkxOTMzNDE5NSIsInRnX3VzZXJuYW1lIjoi4p61IFtvZmZsaW5lXSIsImlhdCI6MTczODY5MjA3N30.SXzZ1MZcvMp5sGESj0hBKSghhxJ3k1GTWoBUbivUe1I"
 cwtoken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpYXQiOjE3NTExOTcwNjQsImNvbiI6eyJpc0FkbWluIjpmYWxzZSwiYXVzZXIiOiJVMFZ6TkdGU2NuQlZjR3h5TkZwV09FYzBURGxOZHowOSIsImlkIjoiVWtoeVRtWkhNbXRTV0RjeVJIcEJUVzExYUdkTlp6MDkiLCJmaXJzdF9uYW1lIjoiVWxadVFXaFBaMnAwSzJsclptVXpkbGxXT0djMlREWlRZVFZ5YzNwdldXNXhhVEpPWjFCWFYyd3pWVDA5IiwiZW1haWwiOiJWSGgyWjB0d2FUZFdUMVZYYmxoc2FsZFJSV2xrY0RWM2FGSkRSU3RzV0c5M1pDOW1hR0kxSzBOeVRUMDkiLCJwaG9uZSI6IldGcFZSSFZOVDJFeGNFdE9Oak4zUzJocmVrNHdRVDA5IiwiYXZhdGFyIjoiSzNWc2NTOHpTMHAwUW5sa2JrODNSRGx2ZWtOaVVUMDkiLCJyZWZlcnJhbF9jb2RlIjoiWkdzMlpUbFBORGw2Tm5OclMyVTRiRVIxTkVWb1FUMDkiLCJkZXZpY2VfdHlwZSI6ImFuZHJvaWQiLCJkZXZpY2VfdmVyc2lvbiI6IlEoQW5kcm9pZCAxMC4wKSIsImRldmljZV9tb2RlbCI6IlhpYW9taSBNMjAwN0oyMENJIiwicmVtb3RlX2FkZHIiOiI0NC4yMDIuMTkzLjIyMCJ9fQ.ONBsbnNwCQQtKMK2h18LCi73e90s2Cr63ZaIHtYueM-Gt5Z4sF6Ay-SEaKaIf1ir9ThflrtTdi5eFkUGIcI78R1stUUch_GfBXZsyg7aVyH2wxm9lKsFB2wK3qDgpd0NiBoT-ZsTrwzlbwvCFHhMp9rh83D4kZIPPdbp5yoA_06L0Zr4fNq3S328G8a8DtboJFkmxqG2T1yyVE2wLIoR3b8J3ckWTlT_VY2CCx8RjsstoTrkL8e9G5ZGa6sksMb93ugautin7GKz-nIz27pCr0h7g9BCoQWtL69mVC5xvVM3Z324vo5uVUPBi1bCG-ptpD9GWQ4exOBk9fJvGo-vRg"
-photologo = 'https://i.ibb.co/23vqX8cW/image.png' #随机选择 1
-photoyt = 'https://i.ibb.co/NgykzgXQ/image.png' #随机选择 2
-photocp = 'https://i.ibb.co/XkSyrm62/Chat-GPT-Image-Jan-22-2026-06-37-41-PM.png' #随机选择 3
-photozip = 'https://i.ibb.co/Gf3jTJbS/image2.jpg' #随机选择 4
+photologo = 'https://i.ibb.co/23vqX8cW/image.png'
+photoyt = 'https://i.ibb.co/NgykzgXQ/image.png'
+photocp = 'https://i.ibb.co/XkSyrm62/Chat-GPT-Image-Jan-22-2026-06-37-41-PM.png'
+photozip = 'https://i.ibb.co/Gf3jTJbS/image2.jpg'
 
 
 
@@ -1170,9 +1177,9 @@ async def details_callback(client, callback_query: CallbackQuery):
     await callback_query.answer()
     details_text = (
         "**📋 Bot Details 📋**\n\n"
-        "• 🤖 Bot Name: DRM Wizard 🦋\n"
-        "• 👨‍💻 Developer: IT'sGOLU.™®\n"
-        "• 📱 Contact: @ITsGOLU_OWNER_BOT\n"
+        "• 🤖 Bot Name: Solo Beast Bot 🦋\n"
+        "• 👨‍💻 Developer: Solo Beast\n"
+        "• 📱 Contact: @solobst_bot\n"
         "• 🔄 Version: 1.0\n"
         "• 📝 Language: Python\n"
         "• 🛠️ Framework: Pyrogram\n\n"
@@ -1214,7 +1221,7 @@ async def back_to_start_callback(client, callback_query: CallbackQuery):
         ),
         reply_markup=InlineKeyboardMarkup([
             [
-                InlineKeyboardButton("𝐈𝐓'𝐬𝐆𝐎𝐋𝐔.™®", url="https://t.me/ITsGOLU_OWNER_BOT")
+                InlineKeyboardButton("𝐒𝐨𝐥𝐨 𝐁𝐞𝐚𝐬𝐭.™®", url="https://t.me/solobst_bot")
             ],
             [
                 InlineKeyboardButton("ғᴇᴀᴛᴜʀᴇꜱ 🪔", callback_data="features"),
