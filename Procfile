@@ -1,1 +1,1 @@
-web: /app/.heroku/python/bin/python main.py
+worker: python main.py
