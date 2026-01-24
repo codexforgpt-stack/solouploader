@@ -352,7 +352,7 @@ async def fast_download(url, name):
     
     return None
 
-async def download_video(url, cmd, name, chat_id):
+async def download_video(url, cmd, name, chat_id=None):
     retry_count = 0
     max_retries = 2
 
